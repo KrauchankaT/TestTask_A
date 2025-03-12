@@ -1,25 +1,29 @@
-import { Page, expect } from "@playwright/test";
+import { Page, expect, Locator } from "@playwright/test";
 
 export class BasketPage{
 
     readonly page:Page
-   
+    readonly popUpBasket: Locator
+    readonly goToBasket: Locator
+
     constructor(page: Page){
-        this.page = page
+        this.page = page;
+        this.popUpBasket = this.page.locator('#dropdownBasket');
+        this.goToBasket = this.page.getByRole('button', { name: 'Перейти в корзину' })
     }
  
-    //async clearCart(){
-    //    await this.page.getByText('Корзина', { exact: true }).click();
-    //    await this.page.getByRole('button', { name: 'Очистить корзину' }).click()
-   // }
-
     async checkPopupBasket(){
-        await this.page.locator('.basket_icon').click();
-        const popupCart = this.page.locator('#dropdownBasket')
-        await expect(popupCart).toHaveAttribute('aria-expanded', 'true');
+               
+        await this.popUpBasket.click();
+        await expect(this.popUpBasket).toHaveAttribute('aria-expanded', 'true');
     }
 
-    // async checkDataInCart (){
+    async openBasket (){
+        await this.goToBasket.click();
+        await expect(this.page).toHaveURL('/basket');
+    }
+
+    // async checkDataInBasket (){
     //         // classproduct_name h6 mb-auto
         
     //       //  const productName = await this.page.locator('.basket-item-title').innerText();
@@ -44,18 +48,16 @@ export class BasketPage{
         const randomIndex = Math.floor(Math.random() * count);                 
         await randomPromotionalItem.nth(randomIndex).locator('.actionBuyProduct').click();
         
-        await expect (this.page.locator('.basket_icon')).toBeAttached(); // лучше эту проверку оставить тут или вынести в основной файл?
+        await expect (this.popUpBasket).toBeVisible(); 
         //const productName = await randomPromotionalItem.nth(randomIndex).locator('.basket-item-title').innerText();
     }    
 
     async checkCountItemsInBasket(count: string){
+        
         await this.page.waitForTimeout(5000)
-        const cartCountItems = await this.page.locator('.basket-count-items').textContent();
-        expect(cartCountItems).toEqual(count);
+        const basketCountItems = await this.page.locator('.basket-count-items').textContent();
+        expect(basketCountItems).toEqual(count);
     }
 
-    async openBasket (){
-        await this.page.getByRole('button', { name: 'Перейти в корзину' }).click();
-        await expect(this.page).toHaveURL('/basket');
-    }
+
 }

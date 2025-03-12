@@ -6,28 +6,22 @@ import { clearBasket } from '../utils/utils';
 
 test.beforeEach(async ({ page, isMobile })  => {
 
-    await page.goto('/login');
-    const login = new LoginPage(page);
-
-    //залогиниться
-    await login.loginToApp('test', 'test');
-    
-    //очистка корзины/ перепроверить почему не очищает
+    await page.goto('');
     await clearBasket(page);
 ;
   })
   
-  // Тест-кейс 1. Переход в пустую корзину.  ///!!!! Здесь будет баг
+  // Тест-кейс 1. Переход в пустую корзину. Failed!
   // Предусловие:
   // - Пользователь авторизован в системе
   // - Корзина пуста
  
   test('TK1. Go to Empty Basket', async ({page}) => {
     
-    const ttt = new BasketPage(page);
+    const emptyBasket = new BasketPage(page);
     
-    await ttt.checkPopupBasket();                                 // check BasketPopUp is opened
-    await ttt.openBasket();                                       // open Basket
+    await emptyBasket.checkPopupBasket();                                 
+    await emptyBasket.openBasket();                                       
   });
   
   // Тест-кейс 2. Переход в корзину с 1 неакционным товаром.
@@ -63,7 +57,7 @@ test.beforeEach(async ({ page, isMobile })  => {
     await ttt.addRandomItemToBasket(promotionalItem);
     await ttt.checkCountItemsInBasket('1');
 
-    await page.waitForSelector('.basket_icon', { state: 'visible' });
+    //await page.waitForSelector('#dropdownBasket', { state: 'visible' });
     await ttt.checkPopupBasket();                                    // check BasketPopUp is opened
     await ttt.openBasket();
   });
