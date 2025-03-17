@@ -73,20 +73,29 @@ test.beforeEach(async ({ page, isMobile })  => {
     
     const theSamePromItem = new BasketPage(page);
 
-    const count = "9";
+    const count = "3";
     const anyPromItem = '.hasDiscount';
     await page.waitForSelector(anyPromItem, { state: 'visible' });
-    const { promItem, itemName, itemPrice } = await theSamePromItem.addRandomItemToBasket(anyPromItem);
+    const selectedItem = await theSamePromItem.addRandomItemToBasket(anyPromItem);
 
     let countItem = 1;
-    while (countItem <= 8){
-      const buttonLocator = await promItem.locator(`text=${itemName}`).locator('xpath=../..').locator('.actionBuyProduct').click();
-      await page.waitForTimeout(3000);
-      countItem ++;
-    }
+    while (countItem <= 2){
+      if (selectedItem.itemlocator) {
+        const buttonLocator = await selectedItem.itemlocator.locator(`text=${selectedItem.itemName}`)
+          .locator('xpath=../..')
+          .locator('.actionBuyProduct');
+          
+          await buttonLocator.click(); 
+          await page.waitForTimeout(3000); 
+        } else {
+          console.error('itemlocator is null or undefined. Проверьте объект selectedItem!');
+          break; 
+        }
+        countItem++;
+     }
 
-    //await page.waitForTimeout(5000)
     await theSamePromItem.checkCountItemsInBasket(count);
+    await theSamePromItem.checkDataInBasket(selectedItem);
     await theSamePromItem.openBasket();
   });
 });
@@ -112,20 +121,21 @@ test.describe('Tests with Empty Basket', () => {
     
     const oneAnyItem = new BasketPage(page);
     
-    const count = "9";
+    const count = "5";
     const anyItem = '.note-item.card.h-100';
     await page.waitForSelector(anyItem, { state: 'visible' });
     await oneAnyItem.checkCountItemsInBasket('1');
+    const selectedItem = await oneAnyItem.addRandomItemToBasket(anyItem);
 
     let countItem = 1;
-    while (countItem <= 8){
+    while (countItem <= 3){
       await oneAnyItem.addRandomItemToBasket(anyItem);
       countItem ++;
     }
    
     await page.waitForTimeout(5000)
     await oneAnyItem.checkCountItemsInBasket(count);
-    //await oneAnyItem.checkDataInBasket(selectedItem);
+    await oneAnyItem.checkDataInBasket(selectedItem);
       
     await oneAnyItem.openBasket();
 });

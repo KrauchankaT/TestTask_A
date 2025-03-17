@@ -1,10 +1,17 @@
 import { Page, expect, Locator } from "@playwright/test";
 
+interface BasketItem {
+    itemlocator: Locator | null;
+    itemName: string;
+    itemPrice: string;
+}
+
 export class BasketPage{
 
     readonly page:Page
     readonly popUpBasket: Locator
     readonly goToBasket: Locator
+    addedItems: BasketItem[] = [];
 
     constructor(page: Page){
         this.page = page;
@@ -51,17 +58,50 @@ export class BasketPage{
 
         const firstPartOfPrice = fullPrice.match(/^\d+\sр\./);
         const itemPrice = firstPartOfPrice ? firstPartOfPrice[0] : '';    
-            
-        return { promItem, itemName, itemPrice };    
+        
+        const itemDetails: BasketItem = {
+            itemlocator: promItem,
+            itemName: itemName,
+            itemPrice: itemPrice
+        };
+
+        this.addedItems.push(itemDetails); // Сохранение данных о добавленном товаре
+        return itemDetails;
+       // return { promItem, itemName, itemPrice };    
     }   
 
-    async checkDataInBasket(expectedItem: { promItem: Locator; itemName: string; itemPrice: string }): Promise<void> {
+   // async checkDataInBasket(expectedItem: { promItem: Locator; itemName: string; itemPrice: string }): Promise<void> {
+    async checkDataInBasket(expectedItem: BasketItem): Promise<void> {
+
+        
         await this.popUpBasket.click();
         await expect(this.popUpBasket).toHaveAttribute('aria-expanded', 'true');
 
         // Receive data from the basket
         const itemNameBasket = await this.page.locator('.basket-item-title')
-                .evaluate(el => (el.textContent ? el.textContent.trim() : ''));
+               .evaluate(el => (el.textContent ? el.textContent.trim() : ''));
+       // const itemNameBasket = await this.page.locator('.basket-item-title').evaluateAll(elements =>
+                //  elements.map(el => (el.textContent ? el.textContent.trim() : ''))
+                // );
+        // Сравниваем массив basketItems с данными из DOM
+ //       this.addedItems.forEach((basketItem, index) => {
+  //          if (itemNameBasket[0] !== expectedItem.itemName) {
+ //                  throw new Error(`Название товара не совпадает: ожидалось "${expectedItem.itemName}", получено "${itemNameBasket}"`);
+                          //    }
+                       //  ;
+            // if (!itemNameBasket.includes(basketItem.itemName)) {
+            //     throw new Error(
+            //         `Товар "${basketItem.itemName}" отсутствует в корзине, отображаемой на странице!`
+            //     );
+            //      } else {
+                   
+            //         
+            // }
+ //       });
+
+
+
+
         const itemPriceBasket = await this.page.locator('.basket-item-price')
                 .evaluate(el => (el.textContent ? el.textContent.trim() : ''));
 
@@ -72,14 +112,24 @@ export class BasketPage{
         
         // Remove dash before price
         function normalizePrice(price: string): string {
-            return price.startsWith('-') ? price.slice(1).trim() : price.trim();
-            }
+            const cleanedPrice = price.replace(/р\./g, '').trim();
+            return cleanedPrice.startsWith('-') ? cleanedPrice.slice(1).trim() : cleanedPrice;
+        }
         
         const normalizedPrice = normalizePrice(itemPriceBasket);
+      
+        const countItem = await this.page.locator('xpath=//*[@id="basketContainer"]/div[2]/ul/li/span[3]').textContent();
+        const itemPrice = Number(expectedItem.itemPrice.replace(/\D/g, ''));
+        const totalPriceForItem = String (Number(countItem) * itemPrice);
+        //parseFloat(countItem.replace(/\D/g, '')); 
 
-        if (normalizedPrice !== expectedItem.itemPrice){
-            throw new Error(`Цена товара не совпадает: ожидалось ${expectedItem.itemPrice}, получено ${normalizedPrice}`);
+        //const count = Number(countItem);
+        //const itemPrice = Number(expectedItem.itemPrice);
+
+        if (normalizedPrice !== totalPriceForItem){
+            throw new Error(`Цена товара не совпадает: ожидалось ${totalPriceForItem}, получено ${normalizedPrice}`);
              }
+
              
         // await this.page.waitForTimeout(5000)    
         const totalPriceBasket = await this.page.locator('.ml-4.mt-4.mb-2 .basket_price')
@@ -107,7 +157,6 @@ export class BasketPage{
         const totalPrice = prices.reduce((sum, price) => sum + price, 0);
     
         return totalPrice;
-    }
-    
+    }   
 
 }
