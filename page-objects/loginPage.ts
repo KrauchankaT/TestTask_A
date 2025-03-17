@@ -24,7 +24,7 @@ export class LoginPage{
         await this.textBoxPassword.pressSequentially(password);    //
         await this.buttonInput.click();
         
-        await this.page.waitForTimeout(10000);
+        await this.page.waitForTimeout(5000);
         //await this.page.goto('', { waitUntil: 'load' });
         //  await this.page.waitForSelector('.dropdownUser .text-uppercase', {
         //      state: 'visible'                            // Указывает, что элемент должен быть видимым
