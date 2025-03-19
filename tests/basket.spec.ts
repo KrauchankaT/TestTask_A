@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test';
 import { BasketPage } from '../page-objects/basketPage';
-import { LoginPage } from '../page-objects/loginPage';
+//import { LoginPage } from '../page-objects/loginPage';
 import { clearBasket } from '../utils/utils';
 
 test.describe('Tests with Empty Basket', () => {
-test.beforeEach(async ({ page, isMobile })  => {
+test.beforeEach(async ({ page })  => {
 
     await page.goto('');
     await clearBasket(page);
@@ -31,13 +31,9 @@ test.beforeEach(async ({ page, isMobile })  => {
   test('TK2. Go to Basket with 1 non-promotional item', async ({page}) => {
 
     const oneNonPromItem = new BasketPage(page);
-
-    const nonPromotionalItem = '.note-item.card.h-100:not(.hasDiscount)';
     const count = '1';
-
-    await page.waitForSelector(nonPromotionalItem, { state: 'visible' });
-    
-    const selectedItem = await oneNonPromItem.addRandomItemToBasket(nonPromotionalItem);
+  
+    const selectedItem = await oneNonPromItem.addRandomNonPromotionalItemToBasket();
     await oneNonPromItem.checkCountItemsInBasket(count);
     await oneNonPromItem.checkDataInBasket(selectedItem);
       
@@ -53,11 +49,9 @@ test.beforeEach(async ({ page, isMobile })  => {
     
     const onePromItem = new BasketPage(page);
 
-    const promotionalItem = '.hasDiscount';
     const count = "1";
 
-    await page.waitForSelector(promotionalItem, {state: 'visible'});
-    const selectedItem = await onePromItem.addRandomItemToBasket(promotionalItem);
+    const selectedItem = await onePromItem.addRandomPromotionalItemToBasket();
     await onePromItem.checkCountItemsInBasket(count);
     await onePromItem.checkDataInBasket(selectedItem);
     await onePromItem.openBasket();
@@ -74,25 +68,14 @@ test.beforeEach(async ({ page, isMobile })  => {
     const theSamePromItem = new BasketPage(page);
 
     const count = "3";
-    const anyPromItem = '.hasDiscount';
-    await page.waitForSelector(anyPromItem, { state: 'visible' });
-    const selectedItem = await theSamePromItem.addRandomItemToBasket(anyPromItem);
+    const selectedItem = await theSamePromItem.addRandomPromotionalItemToBasket();
 
     let countItem = 1;
+    
     while (countItem <= 2){
-      if (selectedItem.itemlocator) {
-        const buttonLocator = await selectedItem.itemlocator.locator(`text=${selectedItem.itemName}`)
-          .locator('xpath=../..')
-          .locator('.actionBuyProduct');
-          
-          await buttonLocator.click(); 
-          await page.waitForTimeout(3000); 
-        } else {
-          console.error('itemlocator is null or undefined. Проверьте объект selectedItem!');
-          break; 
-        }
-        countItem++;
-     }
+      await theSamePromItem.addTheSameItemToBasket(selectedItem);
+      countItem++;
+    }
 
     await theSamePromItem.checkCountItemsInBasket(count);
     await theSamePromItem.checkDataInBasket(selectedItem);
@@ -100,17 +83,15 @@ test.beforeEach(async ({ page, isMobile })  => {
   });
 });
 
-test.describe('Tests with Empty Basket', () => {
+test.describe('Tests with 1 item in Basket', () => {
   
-  test.beforeEach(async ({ page, isMobile })  => {
+  test.beforeEach(async ({ page })  => {
     await page.goto('');
     await clearBasket(page);
 
     const addItem = new BasketPage(page);
-    const promotionalItem = '.hasDiscount';
-    await addItem.addRandomItemToBasket(promotionalItem);
-    
-
+    await addItem.addRandomPromotionalItemToBasket();
+  
   });
 
   //   // Тест-кейс 4. Переход в корзину с 9 разными товарами.
@@ -122,14 +103,15 @@ test.describe('Tests with Empty Basket', () => {
     const oneAnyItem = new BasketPage(page);
     
     const count = "5";
-    const anyItem = '.note-item.card.h-100';
-    await page.waitForSelector(anyItem, { state: 'visible' });
+    await page.locator('#dropdownUser').click();
+   
+    //await page.waitForSelector(anyItem, { state: 'visible' });
     await oneAnyItem.checkCountItemsInBasket('1');
-    const selectedItem = await oneAnyItem.addRandomItemToBasket(anyItem);
+    const selectedItem = await oneAnyItem.addAnyRandomItemToBasket();
 
     let countItem = 1;
     while (countItem <= 3){
-      await oneAnyItem.addRandomItemToBasket(anyItem);
+      await oneAnyItem.addAnyRandomItemToBasket();
       countItem ++;
     }
    

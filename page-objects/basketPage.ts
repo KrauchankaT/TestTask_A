@@ -1,10 +1,11 @@
 import { Page, expect, Locator } from "@playwright/test";
 
 interface BasketItem {
-    itemlocator: Locator | null;
+    itemLocator: Locator | null;
     itemName: string;
-    itemPrice: string;
+    itemPrice: number;
 }
+
 
 export class BasketPage{
 
@@ -22,7 +23,7 @@ export class BasketPage{
     async checkPopupBasket(){
                
         await this.popUpBasket.click();
-        await expect(this.popUpBasket).toHaveAttribute('aria-expanded', 'true');
+        await expect(this.popUpBasket).toHaveAttribute('aria-expanded', 'true', {timeout: 30000});
     }
 
     async openBasket (){
@@ -32,107 +33,125 @@ export class BasketPage{
 
     async checkCountItemsInBasket(count: string){
         
-        await this.page.waitForTimeout(5000)
-        const basketCountItems = await this.page.locator('.basket-count-items').textContent();
-        expect(basketCountItems).toEqual(count);
+        const countItemsInBasket = this.page.locator('.basket-count-items')
+        expect(countItemsInBasket).toHaveText(count, {timeout: 30000});
     }
     
         /**
      * You can click on the "Купить" button for the randomly selected item. 
-     * @param locator - Should be selector for promotional item or non-promotional item
+     * @param itemLocator - Should be selector for promotional item or non-promotional item
      */
-    async addRandomItemToBasket (locator: any){
     
-        const randomPromotionalItem = this.page.locator(locator);
-        const count = await randomPromotionalItem.count();
+    async addRandomItemToBasket (itemLocator: any){
+        
+        const randomItem = this.page.locator(itemLocator);
+
+        await this.page.waitForSelector(itemLocator, { state: 'visible' });
+
+        const count = await randomItem.count();
         const randomIndex = Math.floor(Math.random() * (count-1));                 
-        const promItem = randomPromotionalItem.nth(randomIndex);
+        const promItem = randomItem.nth(randomIndex);
     
         await promItem.locator('.actionBuyProduct').click();
             
         await expect (promItem).toBeVisible();
-        const itemName = await promItem.locator('.product_name')
-                .evaluate(el => (el.textContent ? el.textContent.trim() : ''));
-        const fullPrice = await promItem.locator('.product_price')
-               .evaluate(el => (el.textContent ? el.textContent.trim() : ''));
-
-        const firstPartOfPrice = fullPrice.match(/^\d+\sр\./);
-        const itemPrice = firstPartOfPrice ? firstPartOfPrice[0] : '';    
         
+        const itemName = await promItem.locator('.product_name')
+            .evaluate(el => (el.textContent ? el.textContent.trim() : ''));
+        
+
+        const fullPrice = await promItem.locator('.product_price')
+            .evaluate(el => (el.textContent ? el.textContent.trim() : ''));
+
+        const priceMatch = fullPrice.match(/[+-]?\d+/); 
+        const itemPrice = priceMatch ? parseFloat(priceMatch[0]) : 0;
+
         const itemDetails: BasketItem = {
-            itemlocator: promItem,
+            itemLocator: promItem,
             itemName: itemName,
             itemPrice: itemPrice
         };
 
-        this.addedItems.push(itemDetails); // Сохранение данных о добавленном товаре
-        return itemDetails;
-       // return { promItem, itemName, itemPrice };    
+        this.addedItems.push(itemDetails); 
+        return this.addedItems;
+        
     }   
 
-   // async checkDataInBasket(expectedItem: { promItem: Locator; itemName: string; itemPrice: string }): Promise<void> {
-    async checkDataInBasket(expectedItem: BasketItem): Promise<void> {
-
+    async addRandomPromotionalItemToBasket (){
         
-        await this.popUpBasket.click();
-        await expect(this.popUpBasket).toHaveAttribute('aria-expanded', 'true');
+        const promotionalItem = '.hasDiscount';
+        return this.addRandomItemToBasket(promotionalItem);
+  
+    } 
 
-        // Receive data from the basket
-        const itemNameBasket = await this.page.locator('.basket-item-title')
-               .evaluate(el => (el.textContent ? el.textContent.trim() : ''));
-       // const itemNameBasket = await this.page.locator('.basket-item-title').evaluateAll(elements =>
-                //  elements.map(el => (el.textContent ? el.textContent.trim() : ''))
-                // );
-        // Сравниваем массив basketItems с данными из DOM
- //       this.addedItems.forEach((basketItem, index) => {
-  //          if (itemNameBasket[0] !== expectedItem.itemName) {
- //                  throw new Error(`Название товара не совпадает: ожидалось "${expectedItem.itemName}", получено "${itemNameBasket}"`);
-                          //    }
-                       //  ;
-            // if (!itemNameBasket.includes(basketItem.itemName)) {
-            //     throw new Error(
-            //         `Товар "${basketItem.itemName}" отсутствует в корзине, отображаемой на странице!`
-            //     );
-            //      } else {
-                   
-            //         
-            // }
- //       });
-
-
-
-
-        const itemPriceBasket = await this.page.locator('.basket-item-price')
-                .evaluate(el => (el.textContent ? el.textContent.trim() : ''));
-
-        // Verify data in the basket
-        if (itemNameBasket !== expectedItem.itemName) {
-            throw new Error(`Название товара не совпадает: ожидалось "${expectedItem.itemName}", получено "${itemNameBasket}"`);
-             }
+    async addRandomNonPromotionalItemToBasket (){
         
+        const nonPromotionalItem = '.note-item.card.h-100:not(.hasDiscount)';
+        return this.addRandomItemToBasket(nonPromotionalItem);
+  
+    } 
+
+    async addAnyRandomItemToBasket (){
+        
+        const anyRandomlItem = '.note-item.card.h-100';
+        return this.addRandomItemToBasket(anyRandomlItem);
+  
+    }  
+
+    async addTheSameItemToBasket (expectedItems: BasketItem[]): Promise<void>{
+        for (const expectedItem of expectedItems) {
+        // проверка на NULL
+        if (expectedItem.itemLocator) {
+            const buttonLocator = expectedItem.itemLocator
+                .locator(`text=${expectedItem.itemName}`)
+                .locator('xpath=../..')
+                .locator('.actionBuyProduct');
+            await buttonLocator.click(); 
+        } else {
+            console.error('itemLocator is null or undefined');
+        }
+        }
+    }
+
+    async checkDataInBasket(expectedItems: BasketItem[]) {
+               
+       this.checkPopupBasket()
+       
+       
         // Remove dash before price
         function normalizePrice(price: string): string {
-            const cleanedPrice = price.replace(/р\./g, '').trim();
-            return cleanedPrice.startsWith('-') ? cleanedPrice.slice(1).trim() : cleanedPrice;
+        const cleanedPrice = price.replace(/р\./g, '').trim();
+        return cleanedPrice.startsWith('-') ? cleanedPrice.slice(1).trim() : cleanedPrice;
         }
-        
-        const normalizedPrice = normalizePrice(itemPriceBasket);
-      
-        const countItem = await this.page.locator('xpath=//*[@id="basketContainer"]/div[2]/ul/li/span[3]').textContent();
-        const itemPrice = Number(expectedItem.itemPrice.replace(/\D/g, ''));
-        const totalPriceForItem = String (Number(countItem) * itemPrice);
-        //parseFloat(countItem.replace(/\D/g, '')); 
 
-        //const count = Number(countItem);
-        //const itemPrice = Number(expectedItem.itemPrice);
+        console.log (expectedItems);
 
-        if (normalizedPrice !== totalPriceForItem){
-            throw new Error(`Цена товара не совпадает: ожидалось ${totalPriceForItem}, получено ${normalizedPrice}`);
-             }
+        // Chechk items in the basket
+        for (const expectedItem of expectedItems) {
+            const basketItem = this.page.locator(`.basket-item:has-text("${expectedItem.itemName}")`);
+            await expect(basketItem).toBeVisible();
+            
+            const basketItemPrice = await basketItem.locator('.basket-item-price')
+                .evaluate(el => el.textContent?.trim() || '');
+            
+            const normalizedPrice = normalizePrice(basketItemPrice);
+            const count = await basketItem.locator('[class = "basket-item-count badge badge-primary ml-auto"]')
+                .evaluate(el => el.textContent?.trim() || '');
+            const finalPriceItem = expectedItem.itemPrice * Number(count);
+            
+            if (normalizedPrice !== String(finalPriceItem)) {
+                throw new Error(`Цена товара ${expectedItem.itemName} не совпадает. Ожидалось: ${finalPriceItem}, Получено: ${normalizedPrice}`);
+            } console.log(`Цена товара ${expectedItem.itemName} совпадает. Ожидалось: ${finalPriceItem}, Получено: ${normalizedPrice}`)
+        }
+    
+        // Проверяем общую сумму
+        const basketTotal = await this.page.locator('.ml-4.mt-4.mb-2 .basket_price')
+            .evaluate(el => (el.textContent ? el.textContent.trim() : ''));
+    
+        console.log("Все проверки корзины успешно выполнены!");
+    
 
-             
-        // await this.page.waitForTimeout(5000)    
-        const totalPriceBasket = await this.page.locator('.ml-4.mt-4.mb-2 .basket_price')
+   const totalPriceBasket = await this.page.locator('.ml-4.mt-4.mb-2 .basket_price')
             .evaluate(el => (el.textContent ? el.textContent.trim() : ''));
             
         const total = await this.calculateTotalPrice();
@@ -140,8 +159,8 @@ export class BasketPage{
 
         if (normalizedTotalPrice !== totalPriceBasket) {
             throw new Error(`Общая сумма не совпадает: ожидалось ${totalPriceBasket}, получено ${total}`);
-        }
-    }
+        } console.log (`Общая сумма cовпадает: ожидалось ${totalPriceBasket}, получено ${total}`)
+    } 
 
     async calculateTotalPrice(): Promise<number> {
         
