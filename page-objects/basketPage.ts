@@ -1,11 +1,11 @@
 import { Page, expect, Locator } from "@playwright/test";
+import { time } from "console";
 
 interface BasketItem {
     itemLocator: Locator | null;
     itemName: string;
     itemPrice: number;
 }
-
 
 export class BasketPage{
 
@@ -23,7 +23,8 @@ export class BasketPage{
     async checkPopupBasket(){
                
         await this.popUpBasket.click();
-        await expect(this.popUpBasket).toHaveAttribute('aria-expanded', 'true', {timeout: 30000});
+        await expect(this.popUpBasket).toHaveAttribute('aria-expanded', 'true');
+
     }
 
     async openBasket (){
@@ -34,9 +35,29 @@ export class BasketPage{
     async checkCountItemsInBasket(count: string){
         
         const countItemsInBasket = this.page.locator('.basket-count-items')
-        expect(countItemsInBasket).toHaveText(count, {timeout: 30000});
+        expect(countItemsInBasket).toHaveText(count);
     }
     
+    async addRandomPromotionalItemToBasket (){
+        
+        const promotionalItem = '.hasDiscount';
+        return this.addRandomItemToBasket(promotionalItem);
+  
+    } 
+
+    async addRandomNonPromotionalItemToBasket (){
+        
+        const nonPromotionalItem = '.note-item.card.h-100:not(.hasDiscount)';
+        return this.addRandomItemToBasket(nonPromotionalItem);
+  
+    } 
+
+    async addAnyRandomItemToBasket (){
+        
+        const anyRandomlItem = '.note-item.card.h-100';
+        return this.addRandomItemToBasket(anyRandomlItem);
+  
+    }
         /**
      * You can click on the "Купить" button for the randomly selected item. 
      * @param itemLocator - Should be selector for promotional item or non-promotional item
@@ -73,30 +94,8 @@ export class BasketPage{
         };
 
         this.addedItems.push(itemDetails); 
-        return this.addedItems;
-        
+        return this.addedItems;   
     }   
-
-    async addRandomPromotionalItemToBasket (){
-        
-        const promotionalItem = '.hasDiscount';
-        return this.addRandomItemToBasket(promotionalItem);
-  
-    } 
-
-    async addRandomNonPromotionalItemToBasket (){
-        
-        const nonPromotionalItem = '.note-item.card.h-100:not(.hasDiscount)';
-        return this.addRandomItemToBasket(nonPromotionalItem);
-  
-    } 
-
-    async addAnyRandomItemToBasket (){
-        
-        const anyRandomlItem = '.note-item.card.h-100';
-        return this.addRandomItemToBasket(anyRandomlItem);
-  
-    }  
 
     async addTheSameItemToBasket (expectedItems: BasketItem[]): Promise<void>{
         for (const expectedItem of expectedItems) {
@@ -117,8 +116,7 @@ export class BasketPage{
                
        this.checkPopupBasket()
        
-       
-        // Remove dash before price
+       // Remove dash before price
         function normalizePrice(price: string): string {
         const cleanedPrice = price.replace(/р\./g, '').trim();
         return cleanedPrice.startsWith('-') ? cleanedPrice.slice(1).trim() : cleanedPrice;
