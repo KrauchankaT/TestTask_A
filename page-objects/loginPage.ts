@@ -24,6 +24,6 @@ export class LoginPage{
         await this.textBoxPassword.pressSequentially(password);    //
         await this.buttonInput.click();
         
-        await expect(this.page.locator('#dropdownUser').locator('.text-uppercase')).toBeVisible({timeout: 20000});
+        await expect(this.page.locator('#dropdownUser').locator('.text-uppercase')).toBeVisible();
     }
 }

@@ -26,5 +26,5 @@ export async function clearBasket(page: Page) {
     });
 
     expect(response.status()).toBe(200);
-    //await page.reload({ waitUntil: 'load' });
+    await page.reload({ waitUntil: 'load' });
 }

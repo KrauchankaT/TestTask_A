@@ -11,8 +11,8 @@ test('authenticate', async ({ loginPage, page }, testInfo) => {
     const password = credentials.password;
 
     await page.goto('/login', { waitUntil: 'load' });
+   
     // Perform authentication steps.
-
     await loginPage.loginToApp(username, password)
     await page.context().storageState({ path: authFile });
     }); 

@@ -16,12 +16,14 @@ export class BasketPage{
 
     constructor(page: Page){
         this.page = page;
-        this.popUpBasket = this.page.locator('#dropdownBasket');
+        this.popUpBasket = this.page.getByText('Корзина', { exact: true });
         this.goToBasket = this.page.getByRole('button', { name: 'Перейти в корзину' })
     }
  
     async checkPopupBasket(){
                
+        await this.page.reload({ waitUntil: 'load' });
+        
         await this.popUpBasket.click();
         await expect(this.popUpBasket).toHaveAttribute('aria-expanded', 'true');
 
@@ -81,10 +83,10 @@ export class BasketPage{
             .evaluate(el => (el.textContent ? el.textContent.trim() : ''));
         
 
-        const fullPrice = await promItem.locator('.product_price')
+        const price = await promItem.locator('.product_price')
             .evaluate(el => (el.textContent ? el.textContent.trim() : ''));
 
-        const priceMatch = fullPrice.match(/[+-]?\d+/); 
+        const priceMatch = price.match(/[+-]?\d+/); 
         const itemPrice = priceMatch ? parseFloat(priceMatch[0]) : 0;
 
         const itemDetails: BasketItem = {
@@ -127,7 +129,7 @@ export class BasketPage{
         // Chechk items in the basket
         for (const expectedItem of expectedItems) {
             const basketItem = this.page.locator(`.basket-item:has-text("${expectedItem.itemName}")`);
-            await expect(basketItem).toBeVisible();
+        await expect(basketItem).toBeVisible({ timeout: 100000 });
             
             const basketItemPrice = await basketItem.locator('.basket-item-price')
                 .evaluate(el => el.textContent?.trim() || '');
@@ -141,10 +143,6 @@ export class BasketPage{
                 throw new Error(`Цена товара ${expectedItem.itemName} не совпадает. Ожидалось: ${finalPriceItem}, Получено: ${normalizedPrice}`);
             } console.log(`Цена товара ${expectedItem.itemName} совпадает. Ожидалось: ${finalPriceItem}, Получено: ${normalizedPrice}`)
         }
-    
-        // Проверяем общую сумму
-        const basketTotal = await this.page.locator('.ml-4.mt-4.mb-2 .basket_price')
-            .evaluate(el => (el.textContent ? el.textContent.trim() : ''));
     
         console.log("Все проверки корзины успешно выполнены!");
     

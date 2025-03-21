@@ -12,7 +12,7 @@ import { defineConfig, devices } from '@playwright/test';
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-  timeout: 100000,
+  timeout: 50000,
   testDir: './tests',
   /* Run tests in files in parallel */
   fullyParallel: true,
@@ -28,7 +28,7 @@ export default defineConfig({
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: 'https://enotes.pointschool.ru',
-    //navigationTimeout: 50000,
+    navigationTimeout: 50000,
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
   },
@@ -40,7 +40,7 @@ export default defineConfig({
      },
      {
       name: 'chromium',
-      use: { ...devices['Chrome'] ,
+      use: { ...devices['Desktop Chrome'] ,
            storageState: 'auth/user.json'
       },
       dependencies: ['setup'],
@@ -49,13 +49,17 @@ export default defineConfig({
 
     {
       name: 'firefox',
-      use: { ...devices['Firefox'] },
+      use: { ...devices['Desktop Firefox'] ,
+        storageState: 'auth/user.json'
+      },
       dependencies: ['setup']
     },
 
     {
       name: 'webkit',
-      use: { ...devices['Safari'] },
+      use: { ...devices['Desktop Safari'] ,
+        storageState: 'auth/user.json'
+      },
       dependencies: ['setup']
     },
   ],
