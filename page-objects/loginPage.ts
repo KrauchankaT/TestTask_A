@@ -6,12 +6,15 @@ export class LoginPage{
     readonly textBoxLogin: Locator
     readonly textBoxPassword: Locator
     readonly buttonInput: Locator
+    readonly userIcon: Locator
+
 
     constructor(page: Page){
         this.page = page;
         this.textBoxLogin = page.getByRole('textbox', { name: 'Логин' });
         this.textBoxPassword = page.getByRole('textbox', { name: 'Пароль' });
         this.buttonInput = page.getByRole('button', { name: 'Вход' });
+        this.userIcon = page.locator('#dropdownUser').locator('.text-uppercase');
     }
    
     /**
@@ -21,9 +24,9 @@ export class LoginPage{
      */
     async loginToApp (login: string, password: string) {
         await this.textBoxLogin.fill(login);
-        await this.textBoxPassword.pressSequentially(password);    //
+        await this.textBoxPassword.pressSequentially(password);    
         await this.buttonInput.click();
         
-        await expect(this.page.locator('#dropdownUser').locator('.text-uppercase')).toBeVisible();
+        await expect(this.userIcon).toBeVisible();
     }
 }

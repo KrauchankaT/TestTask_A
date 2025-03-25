@@ -16,7 +16,6 @@ test.beforeEach(async ({ page })  => {
     
     const emptyBasket = new BasketPage(page);
     
-    await page.reload({ waitUntil: 'load' });
     await emptyBasket.checkPopupBasket();                                         
     await emptyBasket.openBasket();                                       
   });
@@ -32,7 +31,6 @@ test.beforeEach(async ({ page })  => {
     const selectedItem = await oneNonPromItem.addRandomNonPromotionalItemToBasket();
     await oneNonPromItem.checkCountItemsInBasket(count);
     await oneNonPromItem.checkDataInBasket(selectedItem);
-      
     await oneNonPromItem.openBasket();
   });
   
@@ -56,17 +54,17 @@ test.beforeEach(async ({ page })  => {
   test('TK5. Go to cart with 9 the same promotional items ', async({page}) => {
     
     const theSamePromItem = new BasketPage(page);
-    const count = "3";
+    const count = 9;
     
     const selectedItem = await theSamePromItem.addRandomPromotionalItemToBasket();
 
     let countItem = 1;
-    while (countItem <= 2){
+    while (countItem <= count){
       await theSamePromItem.addTheSameItemToBasket(selectedItem);
       countItem++;
     }
 
-    await theSamePromItem.checkCountItemsInBasket(count);
+    await theSamePromItem.checkCountItemsInBasket(count.toString());
     await theSamePromItem.checkDataInBasket(selectedItem);
     await theSamePromItem.openBasket();
   });
@@ -89,21 +87,19 @@ test.describe('Tests with 1 item in Basket', () => {
   test('TK4. Go to cart with 9 different items', async ({page}) => {
     
     const oneAnyItem = new BasketPage(page);
-    const count = "5";
+    const count = 9;
     
     await oneAnyItem.checkCountItemsInBasket('1');
     const selectedItem = await oneAnyItem.addAnyRandomItemToBasket();
 
     let countItem = 1;
-    while (countItem <= 3){
+    while (countItem <= count){
       await oneAnyItem.addAnyRandomItemToBasket();
       countItem ++;
     }
    
-  //  await page.waitForTimeout(5000)
-    await oneAnyItem.checkCountItemsInBasket(count);
+    await oneAnyItem.checkCountItemsInBasket(count.toString());
     await oneAnyItem.checkDataInBasket(selectedItem);
-      
     await oneAnyItem.openBasket();
 });
 });
