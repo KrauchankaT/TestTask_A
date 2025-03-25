@@ -2,7 +2,7 @@
   "cookies": [
     {
       "name": "PHPSESSID",
-      "value": "84614e99f09c4d2bcc994dd3521f66c9",
+      "value": "8703e5cf619ce473d374eeab270c7568",
       "domain": "enotes.pointschool.ru",
       "path": "/",
       "expires": -1,
@@ -12,7 +12,7 @@
     },
     {
       "name": "_csrf",
-      "value": "154c3be0f1e640a6879db460c9fae6ef934d900ba150fa8813e6120a25e0d301a%3A2%3A%7Bi%3A0%3Bs%3A5%3A%22_csrf%22%3Bi%3A1%3Bs%3A32%3A%22sZqbY1_VJLiTv9FhS41RFEjQ3cQJQDLI%22%3B%7D",
+      "value": "ea5601cd07a86ffd4c5477cd99bd0d80cd2d8cc7a01efd54ae9fe0394893dbf8a%3A2%3A%7Bi%3A0%3Bs%3A5%3A%22_csrf%22%3Bi%3A1%3Bs%3A32%3A%22S2C3s0qPsh4uNO9wDecgT00YDn1qIDkt%22%3B%7D",
       "domain": "enotes.pointschool.ru",
       "path": "/",
       "expires": -1,
