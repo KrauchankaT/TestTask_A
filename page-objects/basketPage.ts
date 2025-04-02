@@ -21,7 +21,8 @@ export class BasketPage{
         this.popUpBasket = this.page.getByText('Корзина', { exact: true });
         this.goToBasket = this.page.getByRole('button', { name: 'Перейти в корзину' });
         this.basketIcon = this.page.locator('#dropdownBasket');
-        this.countItemsInBasket = this.page.locator('.basket-count-items');
+        //this.countItemsInBasket = this.page.locator('.basket-count-items');
+        this.countItemsInBasket = this.page.locator('xpath=//*[@id="basketContainer"]/span');
     }
     
     //Checks that clicking on the Basket icon opens a Basket pop-up
@@ -88,7 +89,7 @@ export class BasketPage{
     }
      
      /**
-     * Add any item yo the Basket > You can click on the "Купить" button for the randomly selected item. 
+     * Add any item to the Basket > You can click on the "Купить" button for the randomly selected item. 
      * @param itemLocator - Should be locator for promotional item or non-promotional item
      */
     
