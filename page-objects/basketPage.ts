@@ -22,7 +22,7 @@ export class BasketPage{
         this.goToBasket = this.page.getByRole('button', { name: 'Перейти в корзину' });
         this.basketIcon = this.page.locator('#dropdownBasket');
         //this.countItemsInBasket = this.page.locator('.basket-count-items');
-        this.countItemsInBasket = this.page.locator('xpath=//*[@id="basketContainer"]/span');
+        this.countItemsInBasket = this.page.locator('//*[@id="basketContainer"]/span');
     }
     
     //Checks that clicking on the Basket icon opens a Basket pop-up
