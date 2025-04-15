@@ -13,6 +13,8 @@ test('authenticate', async ({ loginPage, page }, testInfo) => {
     await page.goto('/login', { waitUntil: 'load' });
    
     // Perform authentication steps.
-    await loginPage.loginToApp(username, password)
+    await loginPage.loginToApp(username, password);
+
+    await page.waitForResponse('/product/get');
     await page.context().storageState({ path: authFile });
     }); 
