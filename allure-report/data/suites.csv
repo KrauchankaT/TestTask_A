@@ -1,0 +1,5 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"","5204","TK2. Go to Basket with 1 non-promotional item","webkit","Wed Apr 16 12:14:36 MSK 2025","passed","Wed Apr 16 12:14:41 MSK 2025","Tests with Empty Basket","basket.spec.ts","",""
+"","1504","authenticate","setup","Wed Apr 16 12:13:45 MSK 2025","passed","Wed Apr 16 12:13:46 MSK 2025","","auth.setup.ts","",""
+"","41669","TK2. Go to Basket with 1 non-promotional item","firefox","Wed Apr 16 12:13:52 MSK 2025","passed","Wed Apr 16 12:14:33 MSK 2025","Tests with Empty Basket","basket.spec.ts","",""
+"","2751","TK2. Go to Basket with 1 non-promotional item","chromium","Wed Apr 16 12:13:48 MSK 2025","passed","Wed Apr 16 12:13:50 MSK 2025","Tests with Empty Basket","basket.spec.ts","",""

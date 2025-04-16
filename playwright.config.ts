@@ -8,8 +8,10 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : 1,
-  reporter: 'html',
-  
+  reporter: [
+    ['html'],
+    ['allure-playwright']
+  ],
   use: {
     baseURL: 'https://enotes.pointschool.ru',
     navigationTimeout: 50000,
